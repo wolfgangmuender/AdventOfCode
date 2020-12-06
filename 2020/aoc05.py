@@ -20,8 +20,6 @@ for line in content:
             seat_min = ceil((seat_min + seat_max) / 2)
         else:
             print("Invalid input")
-    if row_min != row_max or seat_min != seat_max:
-        print("BOOM")
     seat_ids.append(row_min * 8 + seat_min)
 
 print("Solution 1: the highest seat ID is {}".format(max(seat_ids)))
