@@ -22,17 +22,17 @@ def validate_keys(passport):
 
 
 def match_year(value, minimum, maximum):
-    if re.compile("[0-9]{4}").match(value):
+    if re.compile("^[0-9]{4}$").match(value):
         if minimum <= int(value) <= maximum:
             return True
     return False
 
 
 def match_height(value):
-    if re.compile("[0-9]+cm").match(value):
+    if re.compile("^[0-9]+cm$").match(value):
         if 150 <= int(value[:-2]) <= 193:
             return True
-    if re.compile("[0-9]+in").match(value):
+    if re.compile("^[0-9]+in$").match(value):
         if 59 <= int(value[:-2]) <= 76:
             return True
     return False
@@ -50,11 +50,11 @@ def validate_passport(passport):
         return False
     if not match_height(passport['hgt']):
         return False
-    if not re.compile("#[0-9a-f]{6}").match(passport['hcl']):
+    if not re.compile("^#[0-9a-f]{6}$").match(passport['hcl']):
         return False
     if passport['ecl'] not in ['amb', 'blu', 'brn', 'gry', 'grn', 'hzl', 'oth']:
         return False
-    if not re.compile("[0-9]{9}").match(passport['pid']):
+    if not re.compile("^[0-9]{9}$").match(passport['pid']):
         return False
 
     return True
@@ -65,4 +65,3 @@ num_valid_passports2 = len(list(filter(validate_passport, passports)))
 
 print("Solution 1: {} out of {} passports are valid".format(num_valid_passports1, len(passports)))
 print("Solution 2: {} out of {} passports are valid".format(num_valid_passports2, len(passports)))
-# this implementation yields a solution 2 that is 1 too large :/
