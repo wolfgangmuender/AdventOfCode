@@ -18,8 +18,6 @@ for line in content:
             seat_max = floor((seat_min + seat_max) / 2)
         elif c == "R":
             seat_min = ceil((seat_min + seat_max) / 2)
-        else:
-            print("Invalid input")
     seat_ids.append(row_min * 8 + seat_min)
 
 print("Solution 1: the highest seat ID is {}".format(max(seat_ids)))
