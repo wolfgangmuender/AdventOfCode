@@ -7,7 +7,6 @@ anyone_yes_answers = [set()]
 everyone_yes_answers = [set()]
 is_new = True
 for line in content:
-    print(line)
     if line:
         for char in line:
             anyone_yes_answers[-1].add(char)
