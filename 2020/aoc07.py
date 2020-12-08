@@ -17,23 +17,23 @@ for line in content:
         reversed_rules[bag_color].append(color)
 
 
-def add_bags_recursively(reversed_rules, encasing_bags, bags_to_add):
+def add_bags_recursively(bags_to_add):
     for bag in bags_to_add:
         if bag in encasing_bags:
             continue
         else:
             encasing_bags.add(bag)
-            add_bags_recursively(reversed_rules, encasing_bags, reversed_rules[bag])
+            add_bags_recursively(reversed_rules[bag])
 
 
-def sum_bags_recursively(rules, bags):
-    return sum(map(lambda bag: bags[bag] * (1 + sum_bags_recursively(rules, rules[bag])), bags.keys()))
+def sum_bags_recursively(bags):
+    return sum(map(lambda bag: bags[bag] * (1 + sum_bags_recursively(rules[bag])), bags.keys()))
 
 
 color_to_find = "shiny gold"
 encasing_bags = set()
-add_bags_recursively(reversed_rules, encasing_bags, reversed_rules[color_to_find])
-num_bags = sum_bags_recursively(rules, rules[color_to_find])
+add_bags_recursively(reversed_rules[color_to_find])
+num_bags = sum_bags_recursively(rules[color_to_find])
 
 print("Solution 1: {} bag colors can eventually contain one {} bag".format(len(encasing_bags), color_to_find))
 print("Solution 2: {} bags are required inside one {} bag".format(num_bags, color_to_find))
