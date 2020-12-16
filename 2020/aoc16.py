@@ -88,4 +88,5 @@ print(departure_indexes)
 print(your_ticket)
 
 print("Solution 1: the ticket scanning error rate is {}".format(sum(invalid_values)))
-print("Solution 2: {}".format(reduce(lambda x, y: x * y, [your_ticket[i] for i in departure_indexes])))
+print("Solution 2: the product of the departure-related field values is {}"
+      .format(reduce(lambda x, y: x * y, [your_ticket[i] for i in departure_indexes])))
