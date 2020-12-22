@@ -83,10 +83,6 @@ while len(field_matches):
     for field, field_match in field_matches.items():
         field_match.remove(current_index)
 
-print(field_map)
-print(departure_indexes)
-print(your_ticket)
-
 print("Solution 1: the ticket scanning error rate is {}".format(sum(invalid_values)))
 print("Solution 2: the product of the departure-related field values is {}"
       .format(reduce(lambda x, y: x * y, [your_ticket[i] for i in departure_indexes])))

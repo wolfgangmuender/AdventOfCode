@@ -24,4 +24,4 @@ def get_last_number_spoken(length):
 
 
 print("Solution 1: the 2020th number spoken is {}".format(get_last_number_spoken(2020)))
-print("Solution 2: the 2020th number spoken is {}".format(get_last_number_spoken(30000000)))
+print("Solution 2: the 30000000th number spoken is {}".format(get_last_number_spoken(30000000)))
