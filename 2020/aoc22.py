@@ -53,9 +53,6 @@ def stringify(curr_player1_cards, curr_player2_cards):
 def play_recursive_game(curr_player1_cards, curr_player2_cards):
     already_played = []
     while curr_player1_cards and curr_player2_cards:
-        print(curr_player1_cards)
-        print(curr_player2_cards)
-        print("----------")
         current_turn = stringify(curr_player1_cards, curr_player2_cards)
         if current_turn in already_played:
             return 1
