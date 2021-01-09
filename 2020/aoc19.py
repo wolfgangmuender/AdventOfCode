@@ -24,7 +24,9 @@ for line in content:
             for option in split_and_strip(rule_definition[1], '|'):
                 sub_rules.append(list(map(lambda x: int(x), split_and_strip(option, ' '))))
             value = None
-        rules[int(rule_definition[0])] = {
+        rule_id = int(rule_definition[0])
+        rules[rule_id] = {
+            "id": rule_id,
             "sub_rules": sub_rules,
             "value": value,
         }
@@ -33,10 +35,8 @@ for line in content:
     else:
         raise Exception
 
-print(rules)
 
-
-def build_regex(rule):
+def build_regex(rule, recursion_flag):
     if rule["value"]:
         return rule["value"]
     if rule["sub_rules"]:
@@ -46,23 +46,43 @@ def build_regex(rule):
             the_regex += '('
             regexes = []
             for curr_sub_rule in curr_sub_rules:
-                regexes.append("")
+                sub_rule_regex = ""
                 for part in curr_sub_rule:
-                    regexes[-1] += build_regex(rules[part])
+                    sub_rule_regex += build_regex(rules[part], recursion_flag)
+                regexes.append(sub_rule_regex)
             the_regex += "|".join(regexes)
             the_regex += ')'
         else:
-            for part in curr_sub_rules[0]:
-                the_regex += build_regex(rules[part])
+            if recursion_flag and rule["id"] == 11:
+                repetitons = []
+                for i in range(1, 10):
+                    regex_repetition = ""
+                    for part in curr_sub_rules[0]:
+                        regex_repetition += build_regex(rules[part], recursion_flag) + "{" + str(i) + "}"
+                    repetitons.append(regex_repetition)
+                the_regex = "(" + "|".join(repetitons) + ")"
+            else:
+                the_regex += "("
+                for part in curr_sub_rules[0]:
+                    the_regex += build_regex(rules[part], recursion_flag)
+                the_regex += ")"
+                if recursion_flag and rule["id"] == 8:
+                    the_regex += "+"
         return the_regex
 
 
-rule_0_regex = re.compile("^" + build_regex(rules[0]) + "$")
+def find_matches_for_rule0(recursion_flag):
+    rule_0_regex_str = "^" + build_regex(rules[0], recursion_flag) + "$"
+    print(rule_0_regex_str)
+    rule_0_regex = re.compile(rule_0_regex_str)
 
-matches = 0
-for message in messages:
-    if rule_0_regex.match(message):
-        matches += 1
+    matches = 0
+    for message in messages:
+        if rule_0_regex.match(message):
+            matches += 1
 
-print("Solution 1: {} messages completely match rule 0".format(matches))
-print("Solution 2: {}".format(0))
+    return matches
+
+
+print("Solution 1: {} messages completely match rule 0".format(find_matches_for_rule0(False)))
+print("Solution 2: {} messages completely match rule 0".format(find_matches_for_rule0(True)))
