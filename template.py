@@ -15,4 +15,8 @@ if __name__ == "__main__":
     start = time.time()
     main(content)
     end = time.time()
-    print("The solutions took {} seconds".format(end - start))
+    diff = (end - start)
+    if diff >= 1:
+        print("The solutions took {}s".format(round(diff)))
+    else:
+        print("The solutions took {}ms".format(round(diff * 1000)))
