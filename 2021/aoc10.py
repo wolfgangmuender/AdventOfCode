@@ -34,7 +34,7 @@ def get_score(the_char):
     elif the_char == ">":
         return 25137
     else:
-        raise "You cannot be serious!"
+        raise Exception("You cannot be serious!")
 
 
 syntax_error_score = 0
@@ -57,7 +57,7 @@ def fix_line(the_line):
         if char in [")", "]", "}", ">"]:
             latest_char = the_stack.pop()
             if latest_char not in pairs or pairs[latest_char] != char:
-                raise "You cannot be serious!"
+                raise Exception("You cannot be serious!")
         else:
             the_stack.append(char)
 
@@ -65,7 +65,7 @@ def fix_line(the_line):
         if remainder in pairs:
             the_completions.insert(0, pairs[remainder])
         else:
-            raise "You cannot be serious!"
+            raise Exception("You cannot be serious!")
 
     return the_completions
 
@@ -83,7 +83,7 @@ def get_completion_score(the_completions):
         elif the_char == ">":
             the_score += 4
         else:
-            raise "You cannot be serious!"
+            raise Exception("You cannot be serious!")
     return the_score
 
 
