@@ -3,8 +3,8 @@ import time
 
 
 def main(puzzle_input):
-    print("Solution 1: {}".format(0))
-    print("Solution 2: {}".format(0))
+    print("Solution 1: {}".format(puzzle_input))
+    print("Solution 2: {}".format(puzzle_input))
 
 
 if __name__ == "__main__":
