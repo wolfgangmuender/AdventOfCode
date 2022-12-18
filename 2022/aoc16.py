@@ -19,6 +19,9 @@ def solve(puzzle_input):
 
     print("Solution 1: {}".format(_find_best_path_alone(valves, total_flow_rate, False)["released"]))
     print("Solution 2: {}".format(_find_best_path_alone(valves, total_flow_rate, True)["released"]))
+    # Test data
+    # 1651 - < 1s
+    # 1707 - 24s
 
 
 def _find_best_path_alone(valves, total_flow_rate, with_elephant):
