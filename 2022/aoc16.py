@@ -2,6 +2,8 @@ import os
 import time
 from copy import deepcopy
 
+from more_itertools import set_partitions
+
 
 def solve(puzzle_input):
     valves = {}
@@ -15,97 +17,143 @@ def solve(puzzle_input):
             "flow_rate": flow_rate,
             "tunnels": tunnels[tunnel_offset:].split(", "),
         }
+
+    relevant_valves = {}
+    for valve_id, valve in valves.items():
+        if valve_id == "AA" or valve["flow_rate"] > 0:
+            relevant_valves[valve_id] = {
+                "flow_rate": valve["flow_rate"],
+                "tunnels": get_connections_to_relevant_valves(valve_id, valves),
+            }
+
     total_flow_rate = sum([valve["flow_rate"] for valve in valves.values()])
 
-    print("Solution 1: {}".format(_find_best_path_alone(valves, total_flow_rate, False)["released"]))
-    print("Solution 2: {}".format(_find_best_path_alone(valves, total_flow_rate, True)["released"]))
-    # Test data
-    # 1651 - < 1s
-    # 1707 - 24s
-
-
-def _find_best_path_alone(valves, total_flow_rate, with_elephant):
-    max_rounds = 27 if with_elephant else 31
-    best_path = None
-
-    candidates = [{
-        "valves": ["AA"],
-        "elephant_valves": ["AA"],
-        "flow_rates": [0],
+    start_path = {
+        "minutes": 0,
+        "curr_valve": "AA",
+        "flow_rate": 0,
         "open_valves": [],
         "released": 0,
-    }]
-    rounds = 0
-    start = time.time()
-    while candidates:
-        rounds += 1
-        if rounds % 100000 == 0:
-            print(f"{rounds} rounds, {len(candidates)} candidates, {time.time() - start}s")
+    }
 
-        curr_path = max(candidates, key=lambda p: p["released"])
-        candidates.remove(curr_path)
-        if best_path and (best_path["released"] - curr_path["released"]) > total_flow_rate * (max_rounds - len(curr_path["valves"])):
+    print("Solution 1: {}".format(get_max_released(relevant_valves, total_flow_rate, start_path, 30, {}, 0)))
+
+    openable_valves = list(relevant_valves.keys())
+    openable_valves.remove("AA")
+
+    all_released = []
+    cache = []
+    for my_valve_ids, elephant_valve_ids in set_partitions(openable_valves, 2):
+        if my_valve_ids in cache:
             continue
+        else:
+            cache.append(elephant_valve_ids)
 
-        if len(curr_path["valves"]) == max_rounds:
-            if not best_path or best_path["released"] < curr_path["released"]:
-                best_path = curr_path
-                print(best_path)
-            continue
+        my_valves = filter_valves(relevant_valves, my_valve_ids)
+        my_total_flow_rate = sum([valve["flow_rate"] for valve in my_valves.values()])
+        my_released = get_max_released(my_valves, my_total_flow_rate, start_path, 26, {}, 0)
 
-        new_candidates = _go_on(valves, curr_path)
-        if with_elephant:
-            new_candidates = _go_on_elephant(valves, new_candidates)
+        elephant_valves = filter_valves(relevant_valves, elephant_valve_ids)
+        elephant_total_flow_rate = sum([valve["flow_rate"] for valve in elephant_valves.values()])
+        elephant_released = get_max_released(elephant_valves, elephant_total_flow_rate, start_path, 26, {}, 0)
 
-        candidates.extend(new_candidates)
+        all_released.append(my_released + elephant_released)
 
-    return best_path
+    print("Solution 2: {}".format(max(all_released)))
 
 
-def _go_on(valves, curr_path):
+def get_connections_to_relevant_valves(valve_id, valves):
+    tunnels_to_relevant_valves = {}
+
+    visited = [valve_id]
+    queue = [[next_valve_id] for next_valve_id in valves[valve_id]["tunnels"]]
+    while queue:
+        curr_path = queue.pop(0)
+        curr_valve_id = curr_path[-1]
+
+        visited.append(curr_valve_id)
+
+        if valves[curr_valve_id]["flow_rate"] > 0:
+            tunnels_to_relevant_valves[curr_valve_id] = len(curr_path)
+        for next_valve_id in valves[curr_valve_id]["tunnels"]:
+            if next_valve_id not in visited:
+                queue.append([v for v in curr_path] + [next_valve_id])
+
+    return tunnels_to_relevant_valves
+
+
+def get_max_released(valves, total_flow_rate, curr_path, max_minutes, cache, current_best):
+    if curr_path["minutes"] == max_minutes:
+        return curr_path["released"]
+
+    if current_best - curr_path["released"] > total_flow_rate * (max_minutes - curr_path["minutes"]):
+        return -1
+
+    new_paths = _go_on(valves, max_minutes, curr_path)
+
+    if curr_path["flow_rate"] == total_flow_rate or not new_paths:
+        remaining_minutes = max_minutes - curr_path["minutes"]
+        return curr_path["released"] + curr_path["flow_rate"] * remaining_minutes
+
+    all_released = []
+    for new_path in new_paths:
+        if get_key(new_path) in cache:
+            all_released.append(cache[get_key(new_path)])
+        else:
+            released = get_max_released(valves, total_flow_rate, new_path, max_minutes, cache, max(all_released + [current_best]))
+            cache[get_key(new_path)] = released
+            all_released.append(released)
+
+    return max(all_released)
+
+
+def _go_on(valves, max_minutes, curr_path):
     new_candidates = []
 
-    curr_id = curr_path["valves"][-1]
-    tunnels = valves[curr_id]["tunnels"]
-    for valve_id in tunnels:
-        if len(tunnels) > 1 and len(curr_path["valves"]) > 1 and curr_path["valves"][-2] == valve_id:
-            continue
-        new_path = deepcopy(curr_path)
-        new_path["valves"].append(valve_id)
-        new_path["flow_rates"].append(new_path["flow_rates"][-1])
-        new_path["released"] += new_path["flow_rates"][-2]
-        new_candidates.append(new_path)
-    if valves[curr_id]["flow_rate"] > 0 and curr_id not in curr_path["open_valves"]:
-        new_path = deepcopy(curr_path)
-        new_path["valves"].append(curr_id)
-        new_path["flow_rates"].append(new_path["flow_rates"][-1] + valves[curr_id]["flow_rate"])
-        new_path["open_valves"].append(curr_id)
-        new_path["released"] += new_path["flow_rates"][-2]
-        new_candidates.append(new_path)
-
-    return new_candidates
-
-
-def _go_on_elephant(valves, candidates):
-    new_candidates = []
-
-    for candidate in candidates:
-        curr_id = candidate["elephant_valves"][-1]
+    curr_id = curr_path["curr_valve"]
+    if curr_id == "AA" or curr_id in curr_path["open_valves"]:
         tunnels = valves[curr_id]["tunnels"]
-        for valve_id in tunnels:
-            if len(tunnels) > 1 and len(candidate["elephant_valves"]) > 1 and candidate["elephant_valves"][-2] == valve_id:
+        for valve_id, minutes in tunnels.items():
+            if valve_id in curr_path["open_valves"]:
                 continue
-            new_path = deepcopy(candidate)
-            new_path["elephant_valves"].append(valve_id)
+            if curr_path["minutes"] + minutes > max_minutes:
+                continue
+            new_path = deepcopy(curr_path)
+            new_path["minutes"] += minutes
+            new_path["curr_valve"] = valve_id
+            new_path["released"] += new_path["flow_rate"] * minutes
             new_candidates.append(new_path)
-        if valves[curr_id]["flow_rate"] > 0 and curr_id not in candidate["open_valves"]:
-            new_path = deepcopy(candidate)
-            new_path["elephant_valves"].append(curr_id)
-            new_path["flow_rates"][-1] += valves[curr_id]["flow_rate"]
-            new_path["open_valves"].append(curr_id)
-            new_candidates.append(new_path)
+    else:
+        new_path = deepcopy(curr_path)
+        new_path["minutes"] += 1
+        new_path["curr_valve"] = curr_id
+        new_path["released"] += new_path["flow_rate"]
+        new_path["open_valves"].append(curr_id)
+        new_path["flow_rate"] += valves[curr_id]["flow_rate"]
+        new_candidates.append(new_path)
 
     return new_candidates
+
+
+def get_key(curr_path):
+    cache_key = f"{curr_path['minutes']}_{curr_path['curr_valve']}"
+    cache_key += "_" + "-".join([open_valve for open_valve in sorted(curr_path['open_valves'])])
+    cache_key += f"_{curr_path['released']}"
+    return cache_key
+
+
+def filter_valves(valves, allowed_valves):
+    filtered_valves = {}
+
+    all_allowed_valves = [v for v in allowed_valves] + ["AA"]
+    for valve_id, valve in valves.items():
+        if valve_id in all_allowed_valves:
+            filtered_valves[valve_id] = {
+                "flow_rate": valve["flow_rate"],
+                "tunnels": {tunnel_id: tunnel for tunnel_id, tunnel in valve["tunnels"].items() if tunnel_id in all_allowed_valves},
+            }
+
+    return filtered_valves
 
 
 def main():
