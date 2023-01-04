@@ -18,10 +18,10 @@ def main():
         start = time.time()
         solution1, solution2 = solve(content)
         if solution1 != TEST_SOLUTION1:
-            print(f"Solution 1 '{solution1}' not correct for test input")
+            print(f"TEST solution 1 '{solution1}' not correct!")
             return
         if solution2 != TEST_SOLUTION2:
-            print(f"Solution 2 '{solution2}' not correct for test input")
+            print(f"TEST solution 2 '{solution2}' not correct!")
             return
         end = time.time()
         print_diff(end - start)
