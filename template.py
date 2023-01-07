@@ -24,7 +24,7 @@ def main():
             print(f"TEST solution 2 '{solution2}' not correct!")
             return
         end = time.time()
-        print_diff(end - start)
+        print_diff(end - start, True)
     else:
         open(test_input_file, 'a').close()
 
@@ -37,16 +37,17 @@ def main():
         print("Solution 1: {}".format(solution1))
         print("Solution 2: {}".format(solution2))
         end = time.time()
-        print_diff(end - start)
+        print_diff(end - start, False)
     else:
         open(input_file, 'a').close()
 
 
-def print_diff(diff):
+def print_diff(diff, is_test):
+    prefix = "TEST " if is_test else ""
     if diff >= 1:
-        print("The solutions took {}s".format(round(diff)))
+        print("The {}solutions took {}s".format(prefix, round(diff)))
     else:
-        print("The solutions took {}ms".format(round(diff * 1000)))
+        print("The {}solutions took {}ms".format(prefix, round(diff * 1000)))
 
 
 if __name__ == "__main__":
