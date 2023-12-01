@@ -12,11 +12,18 @@ def solve(puzzle_input):
 
 def main():
     test_input_file = "input/" + os.path.basename(__file__).replace("aoc", "testinput").replace("py", "txt")
+    test_input_file2 = test_input_file.replace(".txt", "-2.txt")
     if os.path.isfile(test_input_file):
-        with open(test_input_file) as f:
-            content = f.read().splitlines()
         start = time.time()
-        solution1, solution2 = solve(content)
+        with open(test_input_file) as f:
+            content1 = f.read().splitlines()
+        if os.path.isfile(test_input_file2):
+            with open(test_input_file2) as f:
+                content2 = f.read().splitlines()
+            solution1, _ = solve(content1)
+            _, solution2 = solve(content2)
+        else:
+            solution1, solution2 = solve(content1)
         if solution1 != TEST_SOLUTION1:
             print(f"TEST solution 1 '{solution1}' not correct!")
             return
