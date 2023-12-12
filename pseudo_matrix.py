@@ -3,7 +3,6 @@ from copy import deepcopy
 
 
 class PseudoMatrix:
-
     default_value = None
     data: dict
     x_range = []
@@ -46,6 +45,14 @@ class PseudoMatrix:
         for y in range(self.y_range[0], self.y_range[1] + 1):
             yield y
 
+    def iter_columns(self):
+        for x in self.iter_x():
+            yield x, [self[x, y] for y in self.iter_y()]
+
+    def iter_rows(self):
+        for y in self.iter_y():
+            yield y, [self[x, y] for x in self.iter_x()]
+
     def iter(self):
         for y in range(self.y_range[0], self.y_range[1] + 1):
             for x in range(self.x_range[0], self.x_range[1] + 1):
@@ -62,9 +69,16 @@ class PseudoMatrix:
         the_copy.y_range = deepcopy(self.y_range)
         return the_copy
 
+    def append_column(self, col):
+        x = self.x_range[1] + 1 if self.x_range else 0
+        y = self.y_range[0] if self.y_range else 0
+        for elem in col:
+            self[x, y] = elem
+            y += 1
+
     def append_row(self, row):
         x = self.x_range[0] if self.x_range else 0
-        y = self.y_range[1]+1 if self.y_range else 0
+        y = self.y_range[1] + 1 if self.y_range else 0
         for elem in row:
             self[x, y] = elem
             x += 1
