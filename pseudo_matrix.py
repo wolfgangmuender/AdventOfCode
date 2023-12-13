@@ -13,7 +13,7 @@ class PseudoMatrix:
         if default_value is not None:
             self.data = defaultdict(lambda: defaultdict(lambda: default_value))
         else:
-            self.data = defaultdict(lambda: dict)
+            self.data = defaultdict(lambda: {})
 
     def __getitem__(self, index):
         x, y = index
@@ -82,3 +82,9 @@ class PseudoMatrix:
         for elem in row:
             self[x, y] = elem
             x += 1
+
+    def get_column(self, x):
+        return [self[x, y] for y in self.iter_y()]
+
+    def get_row(self, y):
+        return [self[x, y] for x in self.iter_x()]
