@@ -15,6 +15,18 @@ class PseudoMatrix:
         else:
             self.data = defaultdict(lambda: {})
 
+    def __eq__(self, other):
+        if self.x_range != other.x_range:
+            return False
+        if self.y_range != other.y_range:
+            return False
+
+        for x, y in self.iter():
+            if self[x, y] != other[x, y]:
+                return False
+
+        return True
+
     def __getitem__(self, index):
         x, y = index
         return self.data[x][y]
@@ -37,13 +49,21 @@ class PseudoMatrix:
         else:
             self.y_range = [y, y]
 
-    def iter_x(self):
-        for x in range(self.x_range[0], self.x_range[1] + 1):
-            yield x
+    def iter_x(self, direction=1):
+        if direction == 1:
+            for x in range(self.x_range[0], self.x_range[1] + 1):
+                yield x
+        else:
+            for x in range(self.x_range[1], self.x_range[0] - 1, -1):
+                yield x
 
-    def iter_y(self):
-        for y in range(self.y_range[0], self.y_range[1] + 1):
-            yield y
+    def iter_y(self, direction=1):
+        if direction == 1:
+            for y in range(self.y_range[0], self.y_range[1] + 1):
+                yield y
+        else:
+            for y in range(self.y_range[1], self.y_range[0] - 1, -1):
+                yield y
 
     def iter_columns(self):
         for x in self.iter_x():
