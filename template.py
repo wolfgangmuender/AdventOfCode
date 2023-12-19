@@ -6,7 +6,8 @@ TEST_SOLUTION2 = 0
 
 
 def solve(puzzle_input):
-    print(puzzle_input)
+    for line in puzzle_input:
+        print(line)
     return 0, 0
 
 
