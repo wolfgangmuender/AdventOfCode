@@ -8,11 +8,14 @@ TEST_SOLUTION2 = 525152
 
 def solve(puzzle_input):
     rows = []
+    rows2 = []
     for line in puzzle_input:
         records, damage_sizes_str = line.split(" ")
-        rows.append([records, [int(n) for n in damage_sizes_str.split(",")]])
+        damage_sizes = [int(n) for n in damage_sizes_str.split(",")]
+        rows.append([records, damage_sizes])
+        rows2.append([records + "?" + records + "?" + records + "?" + records + "?" + records, damage_sizes * 5])
 
-    return sum(get_counts(rows)), 0
+    return sum(get_counts2(rows)), sum(get_counts2(rows2))
 
 
 def get_counts(rows):
@@ -59,6 +62,56 @@ def cluster_sizes(records):
     if curr:
         sizes.append(curr)
     return sizes
+
+
+def get_counts2(rows):
+    cache = {}
+    counts = []
+    for row in rows:
+        curr = count_recursively(row[0], row[1], cache)
+        counts.append(curr)
+    return counts
+
+
+def count_recursively(records, damage_sizes, cache):
+    cache_key = records + "_" + "_".join([str(ds) for ds in damage_sizes])
+    if cache_key in cache:
+        return cache[cache_key]
+
+    if not records:
+        if damage_sizes:
+            res = 0
+        else:
+            res = 1
+    elif not damage_sizes:
+        if "#" in records:
+            res = 0
+        else:
+            res = 1
+    elif records[0] == ".":
+        res = count_recursively(records[1:], damage_sizes, cache)
+    elif records[0] == "#":
+        ds = damage_sizes[0]
+        if len(records) < ds:
+            res = 0
+        elif "." in records[:ds]:
+            res = 0
+        elif len(records) > ds and "#" == records[ds]:
+            res = 0
+        elif len(records) == ds and len(damage_sizes) == 1:
+            res = 1
+        else:
+            res = count_recursively(records[ds + 1:], damage_sizes[1:], cache)
+    elif records[0] == "?":
+        res1 = count_recursively("#" + records[1:], damage_sizes, cache)
+        res2 = count_recursively("." + records[1:], damage_sizes, cache)
+        res = res1 + res2
+    else:
+        raise Exception("Whoot?")
+
+    cache[cache_key] = res
+
+    return res
 
 
 def main():
