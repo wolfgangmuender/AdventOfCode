@@ -108,3 +108,12 @@ class PseudoMatrix:
 
     def get_row(self, y):
         return [self[x, y] for x in self.iter_x()]
+
+    def is_x_within(self, x):
+        return self.x_range[0] <= x <= self.x_range[1]
+
+    def is_y_within(self, y):
+        return self.y_range[0] <= y <= self.y_range[1]
+
+    def is_bottom_right(self, x, y):
+        return x == self.x_range[1] and y == self.y_range[1]
