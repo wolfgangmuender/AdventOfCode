@@ -1,9 +1,11 @@
 import os
 import time
 from collections import defaultdict, Counter
+from copy import copy
+from math import lcm
 
 TEST_SOLUTION1 = 11687500
-TEST_SOLUTION2 = 0
+TEST_SOLUTION2 = 3
 
 
 def solve(puzzle_input):
@@ -21,15 +23,49 @@ def solve(puzzle_input):
             "destinations": destinations.split(", ")
         }
 
-    num_rounds = 1000
+    signals, _ = get_signals(modules, 1000)
+
+    all_paths = get_all_paths(modules)
+    frequencies = []
+    for start_module in modules["broadcaster"]["destinations"]:
+        frequency = get_steps_until_rx(modules, all_paths, start_module) + 1
+        frequencies.append(frequency)
+
+    return signals["low"] * signals["high"], lcm(*frequencies)
+
+
+def get_steps_until_rx(modules, all_paths, start_module_name):
+    filtered_module_names = set()
+    for path in all_paths:
+        if start_module_name in path:
+            filtered_module_names.update(path)
+
+    filtered_modules = {}
+    for module in modules.values():
+        if module["name"] in filtered_module_names:
+            filtered_modules[module["name"]] = {
+                "name": module["name"],
+                "type": module["type"],
+                "destinations": [d for d in module["destinations"] if d in filtered_module_names]
+            }
+
+    _, first_low_at = get_signals(filtered_modules, 10000)
+
+    return first_low_at
+
+
+def get_signals(modules, num_rounds):
     signals = {"low": 0, "high": 0}
     status = init_modules(modules)
+    first_low_at = None
     for i in range(0, num_rounds):
         signals["low"] += 1
         ongoing = [["button", "broadcaster", "low"]]
         while ongoing:
-            curr = ongoing.pop()
-            if curr[1] not in modules:
+            curr = ongoing.pop(0)
+            if curr[1] == "rx":
+                if curr[2] == "low" and not first_low_at:
+                    first_low_at = i
                 continue
 
             sender_name = curr[0]
@@ -49,8 +85,7 @@ def solve(puzzle_input):
                 send(receiver, new_pulse, signals, ongoing)
             elif receiver["type"] == "=":
                 send(receiver, pulse, signals, ongoing)
-
-    return signals["low"] * signals["high"], 0
+    return signals, first_low_at
 
 
 def init_modules(modules):
@@ -76,6 +111,22 @@ def send(module, pulse, signals, ongoing):
     for destination in module["destinations"]:
         signals[pulse] += 1
         ongoing.append([module["name"], destination, pulse])
+
+
+def get_all_paths(modules):
+    open_paths = [["broadcaster"]]
+    all_paths = []
+    while open_paths:
+        open_path = open_paths.pop()
+        destinations = modules[open_path[-1]]["destinations"]
+        for destination in destinations:
+            new_path = copy(open_path)
+            new_path.append(destination)
+            if destination in open_path or destination == "rx":
+                all_paths.append(new_path)
+            else:
+                open_paths.append(new_path)
+    return all_paths
 
 
 def main():
