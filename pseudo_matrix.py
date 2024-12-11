@@ -109,11 +109,48 @@ class PseudoMatrix:
     def get_row(self, y):
         return [self[x, y] for x in self.iter_x()]
 
+    def get_sub(self, x1, x2, y1, y2):
+        sub = PseudoMatrix(self.default_value)
+        for y in range(y1, y2 + 1):
+            for x in range(x1, x2 + 1):
+                sub[x - x1, y - y1] = self[x, y]
+        return sub
+
     def is_x_within(self, x):
         return self.x_range[0] <= x <= self.x_range[1]
 
     def is_y_within(self, y):
         return self.y_range[0] <= y <= self.y_range[1]
 
+    def get_width(self):
+        return self.x_range[1] - self.x_range[0] + 1
+
+    def get_height(self):
+        return self.y_range[1] - self.y_range[0] + 1
+
     def is_bottom_right(self, x, y):
         return x == self.x_range[1] and y == self.y_range[1]
+
+    def rotate_left(self):
+        rotated = PseudoMatrix(self.default_value)
+        for _, row in self.iter_rows():
+            rotated.append_column(list(reversed(row)))
+        return rotated
+
+    def rotate_right(self):
+        rotated = PseudoMatrix(self.default_value)
+        for _, column in self.iter_columns():
+            rotated.append_row(list(reversed(column)))
+        return rotated
+
+    def flip_horizontally(self):
+        flipped = PseudoMatrix(self.default_value)
+        for y in self.iter_y(-1):
+            flipped.append_row(self.get_row(y))
+        return flipped
+
+    def flip_vertically(self):
+        flipped = PseudoMatrix(self.default_value)
+        for x in self.iter_x(-1):
+            flipped.append_column(self.get_column(x))
+        return flipped
