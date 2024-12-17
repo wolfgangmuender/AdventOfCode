@@ -154,3 +154,9 @@ class PseudoMatrix:
         for x in self.iter_x(-1):
             flipped.append_column(self.get_column(x))
         return flipped
+
+    def get_first_coordinate(self, value):
+        for x, y in self.iter():
+            if self[x, y] == value:
+                return x, y
+        raise Exception("It's not here!")
