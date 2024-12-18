@@ -78,6 +78,13 @@ class PseudoMatrix:
             for x in range(self.x_range[0], self.x_range[1] + 1):
                 yield x, y
 
+    def iter_direct_neighbours(self, x, y):
+        for xd, yd in [[1, 0], [-1, 0], [0, 1], [0, -1]]:
+            xn = x + xd
+            yn = y + yd
+            if self.is_x_within(xn) and self.is_y_within(yn):
+                yield xn, yn
+
     def print(self):
         for y in self.iter_y():
             print(f"{y}".ljust(5) + "".join([str(self.data[x][y]) for x in self.iter_x()]))
