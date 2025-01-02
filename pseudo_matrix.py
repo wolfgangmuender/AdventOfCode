@@ -167,3 +167,10 @@ class PseudoMatrix:
             if self[x, y] == value:
                 return x, y
         raise Exception("It's not here!")
+
+    def count(self, value):
+        the_count = 0
+        for x, y in self.iter():
+            if self[x, y] == value:
+                the_count += 1
+        return the_count
