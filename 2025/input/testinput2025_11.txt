@@ -1,0 +1,23 @@
+aaaaaa: you hhhhhh
+you: bbbbbb cccccc
+bbbbbb: dddddd eeeeee
+cccccc: dddddd eeeeee ffffff
+dddddd: gggggg
+eeeeee: out
+ffffff: out
+gggggg: out
+hhhhhh: cccccc ffffff iiiiii
+iiiiii: out
+svr: aaa bbb
+aaa: fft
+fft: ccc
+bbb: tty
+tty: ccc
+ccc: ddd eee
+ddd: hub
+hub: fff
+eee: dac
+dac: fff
+fff: ggg hhh
+ggg: out
+hhh: out
